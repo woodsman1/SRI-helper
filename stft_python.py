@@ -40,3 +40,15 @@ def stft(y, n_fft=2048, hop_length=None, win_length=None, window='hann', center=
         stft_matrix[:, i] = fft_result
 
     return stft_matrix
+
+# Generate a dummy signal
+sr = 22050
+t = np.linspace(0, 1.0, int(sr))
+x = 0.5 * np.sin(2 * np.pi * 440 * t)
+
+# Compute STFT
+D = stft(x, n_fft=1024, hop_length=256, win_length=1024)
+
+# Get magnitude or phase if needed
+magnitude = np.abs(D)
+phase = np.angle(D)
