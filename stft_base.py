@@ -53,3 +53,33 @@ if __name__ == "__main__":
     # Print magnitude of first frame
     print("Magnitude of first frame:")
     print(np.abs(output[0]))
+    
+
+
+
+
+
+import math
+import cmath
+
+def rfft(signal):
+    """
+    Compute the FFT of a real-valued signal, returning only the non-negative frequency terms.
+    Equivalent to np.fft.rfft.
+    """
+    N = len(signal)
+    # Zero pad if not a power of two (optional)
+    output = []
+    for k in range(N // 2 + 1):  # Only non-negative frequencies
+        re = 0.0
+        im = 0.0
+        for n in range(N):
+            angle = 2 * math.pi * k * n / N
+            re += signal[n] * math.cos(-angle)
+            im += signal[n] * math.sin(-angle)
+        output.append(complex(re, im))
+    return output
+
+# Example usage:
+x = [0.0, 1.0, 0.0, -1.0]  # A 4-point real signal
+print(rfft(x))
