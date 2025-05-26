@@ -23,6 +23,7 @@ int pad = n_fft / 2;  // 256
 
 In C++, simulate center=True padding like this:
 
+'''
 std::vector<float> y_padded;
 y_padded.reserve(48000 + 2 * pad);
 
@@ -38,6 +39,7 @@ for (int i = 0; i < 48000; ++i)
 for (int i = 47999; i > 47999 - pad; --i)
     y_padded.push_back(y[i]);
 
+'''
 ✅ New length: 48000 + 512 = 48512 samples
 
 ⸻
