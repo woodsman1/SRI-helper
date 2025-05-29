@@ -29,7 +29,7 @@ Snoring prediction (0 or 1)
 ⸻
 
 📌 1. Extract MFCC from 512-sample chunk
-
+'''
 import librosa
 import numpy as np
 
@@ -39,12 +39,12 @@ def extract_mfcc(audio_chunk, sr=16000, n_mfcc=13):
         n_fft=512, hop_length=512, center=False
     )
     return mfcc.T[0]  # Shape: (13,) — one vector for 512 chunk
-
+'''
 
 ⸻
 
 📌 2. Create Sliding Window Buffer
-
+'''
 from collections import deque
 
 sequence_length = 20  # You can tune this
@@ -55,12 +55,13 @@ def update_buffer(mfcc_vector):
     if len(mfcc_buffer) == sequence_length:
         return np.array(mfcc_buffer)  # Shape: [20, 13]
     return None
-
+'''
 
 ⸻
 
 📌 3. Define a Causal RNN (GRU) Model
 
+'''
 import tensorflow as tf
 
 class CausalSnoreRNN(tf.keras.Model):
@@ -72,6 +73,7 @@ class CausalSnoreRNN(tf.keras.Model):
     def call(self, x):
         return self.fc(self.rnn(x))  # Input shape: [batch, time, features]
 
+'''
 ✅ The model is causal because:
 	•	GRU is unidirectional
 	•	It only processes inputs from past → present
@@ -80,7 +82,7 @@ class CausalSnoreRNN(tf.keras.Model):
 ⸻
 
 📌 4. Simulate Real-Time Prediction Loop
-
+'''
 model = CausalSnoreRNN()
 # For now, run this once to build the model:
 dummy_input = tf.random.normal((1, 20, 13))
@@ -94,7 +96,7 @@ def process_new_audio_chunk(audio_chunk):
         input_tensor = tf.expand_dims(sequence, axis=0)  # [1, 20, 13]
         prediction = model(input_tensor).numpy()[0, 0]
         print("Snoring Probability:", prediction)
-
+'''
 
 ⸻
 
