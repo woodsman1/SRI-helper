@@ -1,13 +1,18 @@
-Perfect — let’s build your causal RNN step by step. It will:
-	•	Take chunks of 512 audio samples
-	•	Convert each to MFCCs
-	•	Maintain a buffer of past chunks
-	•	Feed that sequence to a causal RNN (GRU)
-	•	Predict snoring in real time
+Here you go — the complete response converted into clean Markdown (.md) format, with properly rendered code blocks:
 
 ⸻
 
-🧱 Overall Architecture
+💤 Real-Time Snoring Detection with Causal RNN (TensorFlow)
+
+This guide helps you build a real-time snoring detector using:
+	•	512-sample audio chunks (~32ms at 16kHz)
+	•	MFCC feature extraction
+	•	Sliding window sequence
+	•	Causal RNN (GRU in TensorFlow)
+
+⸻
+
+📐 System Overview
 
 Microphone Audio (16 kHz)
         ↓
@@ -24,12 +29,8 @@ Snoring prediction (0 or 1)
 
 ⸻
 
-✅ Step-by-Step Code (in TensorFlow)
+1. Extract MFCC from 512-sample chunk
 
-⸻
-
-📌 1. Extract MFCC from 512-sample chunk
-'''
 import librosa
 import numpy as np
 
@@ -38,16 +39,16 @@ def extract_mfcc(audio_chunk, sr=16000, n_mfcc=13):
         y=audio_chunk, sr=sr, n_mfcc=n_mfcc, 
         n_fft=512, hop_length=512, center=False
     )
-    return mfcc.T[0]  # Shape: (13,) — one vector for 512 chunk
-'''
+    return mfcc.T[0]  # Shape: (13,) — one vector per 512-sample chunk
+
 
 ⸻
 
-📌 2. Create Sliding Window Buffer
-'''
+2. Create Sliding Window Buffer
+
 from collections import deque
 
-sequence_length = 20  # You can tune this
+sequence_length = 20  # Tunable
 mfcc_buffer = deque(maxlen=sequence_length)
 
 def update_buffer(mfcc_vector):
@@ -55,13 +56,12 @@ def update_buffer(mfcc_vector):
     if len(mfcc_buffer) == sequence_length:
         return np.array(mfcc_buffer)  # Shape: [20, 13]
     return None
-'''
+
 
 ⸻
 
-📌 3. Define a Causal RNN (GRU) Model
+3. Define a Causal RNN (GRU) Model in TensorFlow
 
-'''
 import tensorflow as tf
 
 class CausalSnoreRNN(tf.keras.Model):
@@ -71,44 +71,54 @@ class CausalSnoreRNN(tf.keras.Model):
         self.fc = tf.keras.layers.Dense(1, activation='sigmoid')
 
     def call(self, x):
-        return self.fc(self.rnn(x))  # Input shape: [batch, time, features]
+        return self.fc(self.rnn(x))  # Input: [batch, time, features]
 
-'''
-✅ The model is causal because:
+✅ This model is causal because:
 	•	GRU is unidirectional
-	•	It only processes inputs from past → present
-	•	It does not use bidirectional layers
+	•	It only uses past and present inputs
+	•	No bidirectional layers
 
 ⸻
 
-📌 4. Simulate Real-Time Prediction Loop
-'''
+4. Simulate Real-Time Prediction Loop
+
 model = CausalSnoreRNN()
-# For now, run this once to build the model:
+
+# Run once to initialize weights
 dummy_input = tf.random.normal((1, 20, 13))
 model(dummy_input)
 
-# Simulate mic input
+# Simulate processing of a new audio chunk
 def process_new_audio_chunk(audio_chunk):
     mfcc_vec = extract_mfcc(audio_chunk)
     sequence = update_buffer(mfcc_vec)
     if sequence is not None:
-        input_tensor = tf.expand_dims(sequence, axis=0)  # [1, 20, 13]
+        input_tensor = tf.expand_dims(sequence, axis=0)  # Shape: [1, 20, 13]
         prediction = model(input_tensor).numpy()[0, 0]
         print("Snoring Probability:", prediction)
-'''
+
 
 ⸻
 
-🛠️ 5. Optional: Training Later
+🛠️ Optional: Training Later
 
-If you later want to train this model:
-	•	Prepare sequences of shape [num_samples, 20, 13]
-	•	Labels: 1 = snoring, 0 = not
+If you want to train this model:
+	•	Input shape: [num_samples, 20, 13]
+	•	Labels: 1 = snoring, 0 = not snoring
 	•	Loss: binary_crossentropy
 	•	Optimizer: Adam
 
 ⸻
 
-Would you like help building a live audio stream reader from the mic or simulate fake chunks?
-Also, do you want to train this model from scratch or load a pre-trained one if you get labeled data?
+❓ Next Steps
+
+Would you like:
+	•	🔊 Real mic input stream integration?
+	•	🧪 Simulated data to test the pipeline?
+	•	📦 Help with model training using labeled data?
+
+Let me know and we’ll build the next part!
+
+⸻
+
+Let me know if you want this saved as a downloadable .md file.
