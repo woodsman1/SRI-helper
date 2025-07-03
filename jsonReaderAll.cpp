@@ -81,6 +81,34 @@ public:
         return result;
     }
 
+    std::vector<std::string> parseStringArrayWithSingleQuotes(const std::string& key) const {
+    std::vector<std::string> result;
+
+    cJSON* item = cJSON_GetObjectItem(root, key.c_str());
+        if (!cJSON_IsString(item)) return result;
+    
+        std::string s = item->valuestring;
+    
+        // Replace single quotes with double quotes
+        for (auto& ch : s) {
+            if (ch == '\'') ch = '"';
+        }
+    
+        // Now try parsing it as a proper JSON array
+        cJSON* array = cJSON_Parse(s.c_str());
+        if (!array || !cJSON_IsArray(array)) return result;
+    
+        cJSON* element = nullptr;
+        cJSON_ArrayForEach(element, array) {
+            if (cJSON_IsString(element)) {
+                result.emplace_back(element->valuestring);
+            }
+        }
+    
+        cJSON_Delete(array);
+        return result;
+    }
+
     void printAll() const {
         std::cout << "Name: " << getString("name") << "\n";
         std::cout << "Age: " << getInt("age") << "\n";
